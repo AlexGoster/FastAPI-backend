@@ -35,3 +35,6 @@ docker-compose up -d
 | POST | /items | Создать item |
 
 MIT License - AlexGoster
+
+
+Last updated: 2026-09-20
