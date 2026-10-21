@@ -5,3 +5,10 @@ __pycache__/
 .pytest_cache/
 htmlcov/
 .coverage
+
+# Local verification artifacts
+coverage.xml
+*.egg-info/
+.venv/
+build/
+dist/
