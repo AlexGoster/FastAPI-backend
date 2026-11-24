@@ -1,0 +1,26 @@
+name: API tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      DATABASE_URL: "sqlite+aiosqlite:///:memory:"
+      SECRET_KEY: local-ci-key-for-isolated-tests-only
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Run isolated API tests
+        run: python -m pytest -o addopts= -q

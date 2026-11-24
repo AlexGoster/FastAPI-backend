@@ -27,3 +27,9 @@ python -m pytest -o addopts= -q
 Docker-проверки использовали отдельную сеть, PostgreSQL *_test и Redis; реальные данные, платежи и внешние сообщения не затрагивались. Результат локального запуска не означает production-ready.
 
 Docker build и реальный HTTP CRUD с PostgreSQL прошли 20 октября.
+
+## Повторная проверка — 24 ноября 2026
+
+Повторно прошли 6 тестов: `python -m pytest -o addopts= -q`.
+Добавлен GitHub Actions workflow для имеющегося набора тестов при push и pull request.
+Фикстуры теперь создают SQLite в tmp_path и освобождают engine: файл test.db в рабочем каталоге больше не очищается тестами. Dependency override снимается также при ошибке теста.
