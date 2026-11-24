@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   app:
     build: .
@@ -8,9 +6,12 @@ services:
     environment:
       - DATABASE_URL=postgresql+asyncpg://user:pass@db:5432/app
       - REDIS_URL=redis://redis:6379
+    command: sh -c "python -m alembic upgrade head && exec python -m uvicorn main:app --host 0.0.0.0 --port 8000"
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
 
   db:
     image: postgres:16-alpine
@@ -18,6 +19,11 @@ services:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: pass
       POSTGRES_DB: app
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d app"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
     volumes:
       - pgdata:/var/lib/postgresql/data
 

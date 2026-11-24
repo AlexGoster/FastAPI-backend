@@ -1,173 +1,40 @@
 # FastAPI Backend
 
-REST API для управления пользователями и задачами с JWT-авторизацией.
+Регистрация, access JWT и CRUD собственных Items на FastAPI/SQLAlchemy.
+Refresh-токены, роли администратора и rate limiting не реализованы.
 
-## Описание
-
-Бэкенд-приложение на FastAPI с полным циклом: регистрация, авторизация, CRUD-операции, миграции базы данных, Docker-деплой.
-
-## Технологии
-
-- **Язык:** Python 3.11+
-- **Фреймворк:** FastAPI, SQLAlchemy, Pydantic
-- **База данных:** PostgreSQL, Alembic (миграции)
-- **Авторизация:** JWT (access/refresh токены)
-- **Деплой:** Docker, docker-compose
-- **Тестирование:** pytest, httpx
-
-## Возможности
-
-- Регистрация и вход пользователей (JWT)
-- CRUD операции для Users и Items
-- Ролевая система (admin/user)
-- Rate Limiting (защита от спама)
-- Автоматические миграции через Alembic
-- Swagger-документация (/docs)
-- Health check эндпоинт
-
-## Установка и запуск
+[Проверенный запуск и ограничения](VERIFICATION.md).
 
 ```bash
-# Клонирование
-git clone https://github.com/AlexGoster/FastAPI-backend.git
-cd FastAPI-backend
-
-# Установка зависимостей
-pip install -r requirements.txt
-
-# Настройка (.env)
-DATABASE_URL=postgresql://user:password@localhost/dbname
-SECRET_KEY=your-secret-key
-
-# Запуск
-uvicorn main:app --reload
+python -m venv .venv
+# Активируйте .venv согласно ОС.
+python -m pip install -r requirements.txt
 ```
 
-## Docker
+Создайте исключённый из Git локальный `.env`:
+
+```dotenv
+DATABASE_URL=sqlite+aiosqlite:///./app.db
+SECRET_KEY=local-test-key-change-before-any-public-use
+```
+
+Для PostgreSQL URL имеет вид `postgresql+asyncpg://user:password@localhost/test_database`.
 
 ```bash
-docker-compose up -d
+python -m alembic upgrade head
+python -m uvicorn main:app --host 127.0.0.1 --port 8000
 ```
 
-## API Endpoints
+Swagger `/docs`, health `/health`. POST `/auth/register` принимает JSON email/password,
+POST `/auth/login` — форму username/password; GET `/auth/me` и `/users/me` — профиль.
+GET/POST `/items/`, GET/PATCH/DELETE `/items/{id}` требуют Bearer access token.
+Список содержит только свои Items; чужой ID возвращает 404.
 
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | /register | No | Регистрация пользователя |
-| POST | /login | No | Получение JWT токена |
-| GET | /users/me | Yes | Текущий пользователь |
-| GET | /items | Yes | Список items |
-| POST | /items | Yes | Создать item |
-| PUT | /items/{id} | Yes | Обновить item |
-| DELETE | /items/{id} | Yes | Удалить item |
-
-## Структура проекта
-
-```
-FastAPI-backend/
-├── main.py              # Точка входа
-├── config.py            # Конфигурация
-├── database.py          # Подключение к БД
-├── models/              # SQLAlchemy модели
-├── schemas/             # Pydantic схемы
-├── auth/                # JWT логика
-├── routers/             # API маршруты
-├── middleware/          # CORS, Rate Limiting
-├── tests/               # Тесты
-├── alembic/             # Миграции
-├── Dockerfile
-└── docker-compose.yml
+```bash
+docker compose -p backend-local up -d --build
+docker compose -p backend-local exec app python -m alembic upgrade head
+python -m pytest -o addopts= -q
 ```
 
-## Что я изучила
-
-- Проектирование REST API на FastAPI
-- Работа с SQLAlchemy ORM и Alembic миграциями
-- JWT-авторизация и безопасность
-- Docker-деплой бэкенд-приложений
-- Написание тестов на pytest
-
-## License
-
-MIT License - AlexGoster
-
-
-Last updated: 2026-09-20
-
-
-Last updated: 2026-09-20
-
-
-Last updated: 2026-09-20
-
-
-Last updated: 2026-09-23
-
-
-Last updated: 2026-09-23
-
-
-Last updated: 2026-09-23
-
-
-Last updated: 2026-09-21
-
-
-Last updated: 2026-09-21
-
-
-Last updated: 2026-09-21
-
-
-Last updated: 2026-09-22
-
-
-Last updated: 2026-09-22
-
-
-Last updated: 2026-09-22
-
-
-Last updated: 2026-09-19
-
-
-Last updated: 2026-09-19
-
-
-Last updated: 2026-09-19
-
-
-Last updated: 2026-09-24
-
-
-Last updated: 2026-09-24
-
-
-Last updated: 2026-09-24
-
-
-Last updated: 2026-09-25
-
-
-Last updated: 2026-09-25
-
-
-Last updated: 2026-09-25
-
-
-Last updated: 2026-09-26
-
-
-Last updated: 2026-09-26
-
-
-Last updated: 2026-09-26
-
-
-Last updated: 2026-09-27
-
-
-Last updated: 2026-09-27
-
-
-Last updated: 2026-09-27
+SQLite-тесты и Docker HTTP на отдельном PostgreSQL прошли.
+Пароли в Compose предназначены только для локального стенда.
